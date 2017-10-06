@@ -5,7 +5,7 @@ module SOLIDITY-SYNTAX
                  > AExp "+" AExp              [left, strict]
                  | "(" AExp ")"               [bracket]
   syntax BExp  ::= Bool
-                 | AExp "<=" AExp             [seqstrict, latex({#1}\leq{#2})]
+                 | AExp "<=" AExp             [seqstrict]
                  | "!" BExp                   [strict]
                  > BExp "&&" BExp             [left, strict(1)]
                  | "(" BExp ")"               [bracket]
@@ -27,13 +27,14 @@ module SOLIDITY
 
   syntax KResult ::= Int | Bool
 
-  configuration <T color="yellow">
-                  <k color="green"> $PGM:Pgm </k>
-                  <state color="red"> .Map </state>
-                  <exit-code exit=""> .Map </exit-code>
+  configuration <T>
+                  <k> $PGM:Pgm </k>
+                  <state> .Map </state>
+                  <exit-code exit=""> 1 </exit-code>
                 </T>
 
-  rule <k> X:Id => I ...</k> <state>... X |-> I ...</state>
+  rule <k> X:Id => I ...</k> 
+       <state>... X |-> I ...</state>
 
   rule I1 / I2 => I1 /Int I2  requires I2 =/=Int 0
   rule I1 + I2 => I1 +Int I2
@@ -46,7 +47,8 @@ module SOLIDITY
   rule {} => .   [structural]
   rule {S} => S  [structural]
 
-  rule <k> X = I:Int; => . ...</k> <state>... X |-> (_ => I) ...</state>
+  rule <k> X = I:Int; => . ...</k> 
+       <state>... X |-> (_ => I) ...</state>
 
   rule S1:Stmt S2:Stmt => S1 ~> S2  [structural]
 
@@ -55,7 +57,9 @@ module SOLIDITY
 
   rule while (B) S => if (B) {S while (B) S} else {}  [structural]
 
-  rule <k> int (X,Xs => Xs);_ </k> <state> Rho:Map (.Map => X|->0) </state>
+  rule <k> int (X,Xs => Xs);_ </k> 
+       <state> Rho:Map (.Map => X|->0) </state>
     requires notBool (X in keys(Rho))
+  
   rule int .Ids; S => S  [structural]
 endmodule
